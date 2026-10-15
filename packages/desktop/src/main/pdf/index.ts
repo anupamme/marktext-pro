@@ -2,9 +2,12 @@ import fs from 'fs-extra'
 import fsPromises from 'fs/promises'
 import path from 'path'
 import { pathToFileURL } from 'url'
-import { BrowserView, BrowserWindow, dialog, ipcMain, nativeTheme } from 'electron'
+import { app, BrowserView, BrowserWindow, dialog, ipcMain, nativeTheme } from 'electron'
 import type { Rectangle } from 'electron'
 import log from 'electron-log'
+import { onInternalChannel } from '../utils/internalIpc'
+import { DEFAULT_LANGUAGE } from '../../shared/i18n'
+import type { IUserPreferences } from '../../shared/types/preferences'
 import type { PdfConfiguration } from '../../shared/types/ipc'
 
 const PDF_EXTENSION = '.pdf'
@@ -63,19 +66,58 @@ const normalizeBounds = (bounds: Rectangle): Rectangle => ({
   height: Math.max(1, Math.round(bounds.height))
 })
 
+export const normalizePdfLanguage = (lang?: string): string => {
+  if (!lang) return 'zh-CN'
+  const lower = lang.toLowerCase()
+  if (lower.startsWith('zh-tw') || lower.startsWith('zh-hk')) return 'zh-TW'
+  if (lower.startsWith('zh')) return 'zh-CN'
+  if (lower.startsWith('en')) return 'en-US'
+  if (lower.startsWith('ja')) return 'ja'
+  if (lower.startsWith('de')) return 'de'
+  if (lower.startsWith('fr')) return 'fr'
+  if (lower.startsWith('it')) return 'it'
+  if (lower.startsWith('ko')) return 'ko'
+  if (lower.startsWith('es')) return 'es-ES'
+  if (lower.startsWith('pt')) return 'pt-PT'
+  if (lower.startsWith('tr')) return 'tr'
+  return lang
+}
+
+const getInitialPreferences = (): { language: string; isDark: boolean; theme: string } => {
+  let language = DEFAULT_LANGUAGE || 'zh-CN'
+  let isDark = nativeTheme.shouldUseDarkColors
+  let theme = isDark ? 'dark' : 'light'
+  try {
+    const userData = app.getPath('userData')
+    const prefFile = path.join(userData, 'preferences.json')
+    if (fs.existsSync(prefFile)) {
+      const data = fs.readJsonSync(prefFile)
+      if (data) {
+        if (typeof data.language === 'string') language = data.language
+        if (typeof data.theme === 'string') theme = data.theme
+        if (theme === 'dark') isDark = true
+        else if (theme === 'light') isDark = false
+      }
+    }
+  } catch {}
+  return { language, isDark, theme }
+}
+
 let lastKnownPdfConfig: PdfConfiguration | null = null
 
 const getOrCreateWindowEntry = (win: BrowserWindow): PdfWindowEntry => {
   const existing = views.get(win.id)
   if (existing) return existing
-  const isDark = lastKnownPdfConfig ? lastKnownPdfConfig.dark === true : nativeTheme.shouldUseDarkColors
-  const themeName = lastKnownPdfConfig?.theme || (isDark ? 'dark' : 'light')
+  const initPrefs = getInitialPreferences()
+  const isDark = lastKnownPdfConfig ? lastKnownPdfConfig.dark === true : initPrefs.isDark
+  const themeName = lastKnownPdfConfig?.theme || initPrefs.theme
+  const lang = lastKnownPdfConfig?.language || initPrefs.language
   const entry: PdfWindowEntry = {
     documents: new Map(),
     activePath: null,
     visible: false,
     configuration: {
-      language: lastKnownPdfConfig?.language || 'zh-CN',
+      language: lang,
       dark: isDark,
       theme: themeName,
       colors: lastKnownPdfConfig?.colors || {}
@@ -166,7 +208,7 @@ const ensureViewLoaded = async (
   const viewerUrl = new URL(pathToFileURL(viewerPath).toString())
   const fileUrl = pathToFileURL(filePath).toString()
 
-  const lang = config.language || 'zh-CN'
+  const lang = normalizePdfLanguage(config.language)
   viewerUrl.searchParams.set('file', fileUrl)
   viewerUrl.searchParams.set('locale', lang)
   viewerUrl.searchParams.set('dark', config.dark ? '1' : '0')
@@ -179,7 +221,7 @@ const ensureViewLoaded = async (
       dark: config.dark,
       theme: config.theme,
       colors: config.colors,
-      language: config.language
+      language: lang
     })
   })
 
@@ -578,6 +620,30 @@ export const initPdfIpc = (): void => {
     }
 
     emitState(win, owner.filePath, entry.state)
+  })
+
+  // Listen to application preferences changes (e.g. language or theme change)
+  onInternalChannel('broadcast-preferences-changed', (prefs: Partial<IUserPreferences>) => {
+    if (prefs) {
+      if (prefs.language && lastKnownPdfConfig) {
+        lastKnownPdfConfig.language = prefs.language
+      }
+      for (const windowEntry of views.values()) {
+        if (prefs.language) {
+          windowEntry.configuration.language = prefs.language
+        }
+        for (const doc of windowEntry.documents.values()) {
+          if (!doc.view.webContents.isDestroyed()) {
+            doc.view.webContents.send('mt::pdf::theme', {
+              dark: windowEntry.configuration.dark,
+              theme: windowEntry.configuration.theme,
+              colors: windowEntry.configuration.colors,
+              language: normalizePdfLanguage(windowEntry.configuration.language)
+            })
+          }
+        }
+      }
+    }
   })
 }
 

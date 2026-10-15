@@ -3174,6 +3174,14 @@ class ExternalServices extends BaseExternalServices {
       const paramLang = searchParams.get("locale") || hashParams.get("locale");
       if (paramLang) lang = paramLang;
     } catch {}
+    if (lang) {
+      const lower = lang.toLowerCase();
+      if (lower.startsWith('zh-tw') || lower.startsWith('zh-hk')) lang = 'zh-TW';
+      else if (lower.startsWith('zh')) lang = 'zh-CN';
+      else if (lower.startsWith('en')) lang = 'en-US';
+      else if (lower.startsWith('es')) lang = 'es-ES';
+      else if (lower.startsWith('pt')) lang = 'pt-PT';
+    }
     return new genericl10n_GenericL10n(lang || "zh-CN");
   }
   createScripting() {
@@ -18943,11 +18951,35 @@ const PDFViewerApplication = {
   async setLanguage(lang) {
     if (!lang) return;
     try {
-      AppOptions.set("localeProperties", { lang });
-      const newL10n = new genericl10n_GenericL10n(lang);
+      let normalized = lang;
+      const lower = lang.toLowerCase();
+      if (lower.startsWith('zh-tw') || lower.startsWith('zh-hk')) normalized = 'zh-TW';
+      else if (lower.startsWith('zh')) normalized = 'zh-CN';
+      else if (lower.startsWith('en')) normalized = 'en-US';
+      else if (lower.startsWith('es')) normalized = 'es-ES';
+      else if (lower.startsWith('pt')) normalized = 'pt-PT';
+      AppOptions.set("localeProperties", { lang: normalized });
+      if (this.l10n?.destroy) {
+        try {
+          await this.l10n.destroy();
+        } catch {}
+      }
+      const newL10n = new genericl10n_GenericL10n(normalized);
       this.l10n = newL10n;
+      if (this.toolbar) this.toolbar.l10n = newL10n;
+      if (this.pdfViewer) this.pdfViewer.l10n = newL10n;
+      if (this.pdfThumbnailViewer) this.pdfThumbnailViewer.l10n = newL10n;
+      if (this.pdfDocumentProperties) this.pdfDocumentProperties.l10n = newL10n;
       document.getElementsByTagName("html")[0].dir = newL10n.getDirection();
       await newL10n.translate(this.appConfig?.appContainer || document.documentElement);
+      try {
+        if (this.viewsManager) {
+          this.viewsManager.reset?.();
+        }
+        if (this.toolbar && this.pdfViewer) {
+          this.toolbar.setPageNumber(this.pdfViewer.currentPageNumber, this.pdfViewer.pagesCount);
+        }
+      } catch {}
     } catch (e) {
       console.warn("Failed to set PDF language dynamically:", e);
     }

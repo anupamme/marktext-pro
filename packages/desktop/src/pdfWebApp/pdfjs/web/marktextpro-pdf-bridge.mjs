@@ -197,8 +197,22 @@ function initBridge() {
     ipc.on('mt::pdf::theme', (_event, payload) => {
       if (payload) {
         applyThemeColors(payload.colors, payload.dark)
-        if (payload.language && typeof window.PDFViewerApplication?.setLanguage === 'function') {
-          window.PDFViewerApplication.setLanguage(payload.language)
+        if (payload.language) {
+          const applyLanguage = async () => {
+            const app = window.PDFViewerApplication
+            if (!app) return
+            try {
+              if (app.initializedPromise) {
+                await app.initializedPromise
+              }
+              if (typeof app.setLanguage === 'function') {
+                await app.setLanguage(payload.language)
+              }
+            } catch (err) {
+              console.warn('PDF bridge setLanguage error:', err)
+            }
+          }
+          void applyLanguage()
         }
       }
     })

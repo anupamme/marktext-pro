@@ -16,13 +16,13 @@ MarkTextPro 是一款集成 Git、Draw.io、GeoGebra、MindMap、KDBX 密码库�
 MarkTextPro 和 MarkNotePro 是两个相互独立、但能力互补的产品：
 
 - **MarkTextPro**：自由文件与项目多模态工作区管理器，适合真实文件夹、代码仓库、外部独立文档、项目 README 和自由编辑，原生集成 **Markdown、Draw.io、GeoGebra、MindMap、KDBX 密码库（含 2FA & SSH 终端直连）与 PDF 阅读批注**。
-- **MarkNotePro**：结构化笔记与多模态知识工作台，适合长期笔记、知识库、专业项目资料、分区组 / 分区 / 结构化文档体系，同样原生集成 **Markdown、Draw.io、GeoGebra、MindMap 与 KDBX 密码库（含 2FA & SSH 终端直连）**，并将于下一步全面补充上线 **PDF 专业阅读与批注**能力。
+- **MarkNotePro**：结构化笔记与多模态知识工作台，适合长期笔记、知识库、专业项目资料、分区组 / 分区 / 结构化文档体系，原生集成 **Markdown、Draw.io、GeoGebra、MindMap、KDBX 密码库（含 2FA & SSH 终端直连）与 PDF 专业阅读批注**。
 
-两者均将具备 **Markdown、Draw.io、GeoGebra、MindMap、KDBX 密码库与 PDF 专业阅读批注**核心本地能力，并都集成 Git 工作区；这些核心能力与 Git 是二者的共同底座，不是选择的分水岭。选择时更应该看你需要“自由文件与项目工作区管理器”还是“结构化笔记与多模态知识工作台”。
+两者均具备 **Markdown、Draw.io、GeoGebra、MindMap、KDBX 密码库与 PDF 专业阅读批注**核心本地能力，并都集成 Git 工作区；这些核心能力与 Git 是二者的共同底座，不是选择的分水岭。选择时更应该看你需要“自由文件与项目工作区管理器”还是“结构化笔记与多模态知识工作台”。
 
 ## 产品选择对比图
 
-下面是同一个项目在两个产品里的展示差异：MarkNotePro 只会展示符合笔记标准的目录和受支持的多模态文档（`.md` / `.drawio` / `.ggb` / `.smm` / `.kdbx`），收敛为分区组 / 分区 / 文档视图；MarkTextPro 则展示真实文件系统结构，更适合完整项目目录和外部文件管理。
+下面是同一个项目在两个产品里的展示差异：MarkNotePro 只会展示符合笔记标准的目录和受支持的多模态文档（`.md` / `.drawio` / `.ggb` / `.smm` / `.kdbx` / `.pdf`），收敛为分区组 / 分区 / 文档视图；MarkTextPro 则展示真实文件系统结构，更适合完整项目目录和外部文件管理。
 
 | MarkNotePro：结构化笔记视图 | MarkTextPro：真实文件系统视图 |
 | --- | --- |

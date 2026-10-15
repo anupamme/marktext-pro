@@ -48,7 +48,7 @@ MarkTextPro 是一款集成 Git 的多模态 Markdown 文件编辑管理器。�
 
 ## 产品选择
 
-MarkTextPro 和 MarkNotePro 是两个相互独立、但能力互补的产品。两个产品均原生具备 Markdown、Draw.io、GeoGebra、MindMap 与 KDBX 加密密码库能力，且均将具备 PDF 专业阅读与多模态批注能力（MarkNotePro 将在下一步全面补充上线）；差异在于 MarkTextPro 面向真实文件夹、项目仓库和外部独立文件，MarkNotePro 面向分区组 / 分区 / 文档的结构化知识工作区。
+MarkTextPro 和 MarkNotePro 是两个相互独立、但能力互补的产品。两个产品均原生具备 Markdown、Draw.io、GeoGebra、MindMap、KDBX 加密密码库与 PDF 专业阅读批注能力；差异在于 MarkTextPro 面向真实文件夹、项目仓库和外部独立文件，MarkNotePro 面向分区组 / 分区 / 文档的结构化知识工作区。
 
 - **MarkTextPro**：集成 Git 的多模态文件编辑管理器，强调自由文件夹结构、外部独立文档、代码项目协作与临时编辑。
 - **MarkNotePro**：集成 Git 的结构化本地笔记工作台，强调笔记工作区、分区组、分区、笔记层级与长期知识管理。

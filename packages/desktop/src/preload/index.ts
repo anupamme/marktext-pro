@@ -127,6 +127,99 @@ const MARKDOWN_EXTENSIONS = [
   'txt'
 ] as const
 
+const CODE_AND_TEXT_EXTENSIONS_MAP: Readonly<Record<string, string>> = Object.freeze({
+  // 文本
+  txt: 'text',
+  text: 'text',
+  log: 'text',
+
+  // 配置与数据
+  json: 'json',
+  jsonc: 'json',
+  yaml: 'yaml',
+  yml: 'yaml',
+  xml: 'xml',
+  toml: 'toml',
+  ini: 'ini',
+  conf: 'ini',
+  cfg: 'ini',
+  properties: 'ini',
+  env: 'shell',
+
+  // 脚本代码
+  sql: 'sql',
+  sh: 'shell',
+  bash: 'shell',
+  bat: 'bat',
+  ps1: 'powershell',
+  html: 'html',
+  htm: 'html',
+  css: 'css',
+  scss: 'css',
+  less: 'css',
+  py: 'python',
+  js: 'javascript',
+  mjs: 'javascript',
+  cjs: 'javascript',
+  ts: 'typescript',
+  mts: 'typescript',
+  cts: 'typescript'
+})
+
+const hasCodeOrTextExtension = (filename: string): boolean => {
+  if (!filename || typeof filename !== 'string') return false
+  const lower = filename.toLowerCase()
+  const basename = lower.split(/[/\\]/).pop() || ''
+  if (
+    basename === '.env' ||
+    basename.startsWith('.env.') ||
+    basename.endsWith('.env') ||
+    basename === '.gitignore' ||
+    basename === '.npmignore' ||
+    basename === '.dockerignore' ||
+    basename === '.editorconfig' ||
+    basename === 'dockerfile' ||
+    basename === 'makefile'
+  ) {
+    return true
+  }
+  const dotIndex = basename.lastIndexOf('.')
+  if (dotIndex === -1) return false
+  const ext = basename.slice(dotIndex + 1)
+  return ext in CODE_AND_TEXT_EXTENSIONS_MAP
+}
+
+const isCodeOrTextFilePath = (pathname?: string): boolean => {
+  return hasCodeOrTextExtension(pathname || '')
+}
+
+const isCodeOrTextFileName = (filename?: string): boolean => {
+  return hasCodeOrTextExtension(filename || '')
+}
+
+const getCodeLanguageFromPath = (pathname?: string): string => {
+  if (!pathname || typeof pathname !== 'string') return 'text'
+  const lower = pathname.toLowerCase()
+  const basename = lower.split(/[/\\]/).pop() || ''
+  if (
+    basename === '.env' ||
+    basename.startsWith('.env.') ||
+    basename.endsWith('.env') ||
+    basename === '.gitignore' ||
+    basename === '.npmignore' ||
+    basename === '.dockerignore'
+  ) {
+    return 'shell'
+  }
+  if (basename === '.editorconfig') return 'ini'
+  if (basename === 'dockerfile') return 'shell'
+  if (basename === 'makefile') return 'shell'
+  const dotIndex = basename.lastIndexOf('.')
+  if (dotIndex === -1) return 'text'
+  const ext = basename.slice(dotIndex + 1)
+  return CODE_AND_TEXT_EXTENSIONS_MAP[ext] || 'text'
+}
+
 const hasMarkdownExtension = (filename: string): boolean => {
   if (!filename || typeof filename !== 'string') return false
   return MARKDOWN_EXTENSIONS.some((ext) => filename.toLowerCase().endsWith(`.${ext}`))
@@ -179,6 +272,11 @@ const fileUtilsAPI = {
   // Pure-string predicates — synchronous, no IPC for the common case.
   isChildOfDirectory,
   hasMarkdownExtension,
+  hasCodeOrTextExtension,
+  isCodeOrTextFilePath,
+  isCodeOrTextFileName,
+  getCodeLanguageFromPath,
+  CODE_AND_TEXT_EXTENSIONS_MAP,
   isSamePathSync,
   // isImageFile needs an fs.statSync; keep it async via IPC.
   isImageFile: (p: string) => invoke('mt::paths::is-image', p),

@@ -19,8 +19,117 @@ export const MARKDOWN_EXTENSIONS: readonly string[] = Object.freeze([
   'txt'
 ])
 
+export const CODE_AND_TEXT_EXTENSIONS_MAP: Readonly<Record<string, string>> = Object.freeze({
+  // 文本
+  txt: 'text',
+  text: 'text',
+  log: 'text',
+
+  // 配置与数据
+  json: 'json',
+  jsonc: 'json',
+  yaml: 'yaml',
+  yml: 'yaml',
+  xml: 'xml',
+  toml: 'toml',
+  ini: 'ini',
+  conf: 'ini',
+  cfg: 'ini',
+  properties: 'ini',
+  env: 'shell',
+
+  // 脚本代码
+  sql: 'sql',
+  sh: 'shell',
+  bash: 'shell',
+  bat: 'bat',
+  ps1: 'powershell',
+  html: 'html',
+  htm: 'html',
+  css: 'css',
+  scss: 'css',
+  less: 'css',
+  py: 'python',
+  js: 'javascript',
+  mjs: 'javascript',
+  cjs: 'javascript',
+  ts: 'typescript',
+  mts: 'typescript',
+  cts: 'typescript'
+})
+
+export const CODE_AND_TEXT_EXTENSIONS: readonly string[] = Object.freeze(
+  Object.keys(CODE_AND_TEXT_EXTENSIONS_MAP)
+)
+
+export const hasCodeOrTextExtension = (filename: string): boolean => {
+  if (!filename || typeof filename !== 'string') return false
+  const lower = filename.toLowerCase()
+  const basename = lower.split(/[/\\]/).pop() || ''
+  if (
+    basename === '.env' ||
+    basename.startsWith('.env.') ||
+    basename.endsWith('.env') ||
+    basename === '.gitignore' ||
+    basename === '.npmignore' ||
+    basename === '.dockerignore' ||
+    basename === '.editorconfig' ||
+    basename === 'dockerfile' ||
+    basename === 'makefile'
+  ) {
+    return true
+  }
+  const dotIndex = basename.lastIndexOf('.')
+  if (dotIndex === -1) return false
+  const ext = basename.slice(dotIndex + 1)
+  return ext in CODE_AND_TEXT_EXTENSIONS_MAP
+}
+
+export const isCodeOrTextFile = (filepath: string): boolean => {
+  if (!isFile2(filepath)) return false
+  return hasCodeOrTextExtension(filepath)
+}
+
+export const isCodeOrTextFilePath = (pathname?: string): boolean => {
+  if (!pathname || typeof pathname !== 'string') return false
+  return hasCodeOrTextExtension(pathname)
+}
+
+export const isCodeOrTextFileName = (filename?: string): boolean => {
+  return hasCodeOrTextExtension(filename || '')
+}
+
+export const getCodeLanguageFromPath = (pathname?: string): string => {
+  if (!pathname || typeof pathname !== 'string') return 'text'
+  const lower = pathname.toLowerCase()
+  const basename = lower.split(/[/\\]/).pop() || ''
+  if (
+    basename === '.env' ||
+    basename.startsWith('.env.') ||
+    basename.endsWith('.env') ||
+    basename === '.gitignore' ||
+    basename === '.npmignore' ||
+    basename === '.dockerignore'
+  ) {
+    return 'shell'
+  }
+  if (basename === '.editorconfig') return 'ini'
+  if (basename === 'dockerfile') return 'shell'
+  if (basename === 'makefile') return 'shell'
+  const dotIndex = basename.lastIndexOf('.')
+  if (dotIndex === -1) return 'text'
+  const ext = basename.slice(dotIndex + 1)
+  return CODE_AND_TEXT_EXTENSIONS_MAP[ext] || 'text'
+}
+
 export const MARKDOWN_INCLUSIONS: readonly string[] = Object.freeze(
-  MARKDOWN_EXTENSIONS.map((x) => '*.' + x)
+  Array.from(
+    new Set([
+      ...MARKDOWN_EXTENSIONS.map((x) => '*.' + x),
+      ...CODE_AND_TEXT_EXTENSIONS.map((x) => '*.' + x),
+      '.env*'
+    ])
+  )
 )
 
 const PROJECT_TREE_HIDDEN_DIRECTORY_NAMES = new Set([

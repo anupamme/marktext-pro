@@ -5,6 +5,7 @@ import chokidar, { type FSWatcher } from 'chokidar'
 import { exists } from 'common/filesystem'
 import {
   hasMarkdownExtension,
+  isCodeOrTextFilePath,
   checkPathExcludePattern,
   isHiddenProjectTreePath
 } from 'common/filesystem/paths'
@@ -62,7 +63,8 @@ const add = async(
   const stats = await fsPromises.stat(pathname)
   const birthTime = stats.birthtime
   const mtimeMs = stats.mtimeMs
-  const isMarkdown = hasMarkdownExtension(pathname)
+  const isCode = isCodeOrTextFilePath(pathname)
+  const isMarkdown = !isCode && hasMarkdownExtension(pathname)
   const isDrawing = isDrawioFile(pathname)
   const isGeoGebra = isGeoGebraFile(pathname)
   const isMindMap = isMindMapFile(pathname)
@@ -79,6 +81,7 @@ const add = async(
     isGeoGebra: boolean
     isMindMap: boolean
     isKdbx: boolean
+    isCodeFile?: boolean
     data?: Awaited<ReturnType<typeof loadMarkdownFile>>
   } = {
     pathname,
@@ -91,9 +94,10 @@ const add = async(
     isDrawing,
     isGeoGebra,
     isMindMap,
-    isKdbx
+    isKdbx,
+    isCodeFile: isCode
   }
-  if (isMarkdown) {
+  if (isMarkdown || isCode) {
     // HACK: But this should be removed completely in #1034/#1035.
     try {
       const data = await loadMarkdownFile(
@@ -116,7 +120,7 @@ const add = async(
       }
     }
   }
-  if (isMarkdown || isDrawing || isGeoGebra || isMindMap || isKdbx) {
+  if (isMarkdown || isDrawing || isGeoGebra || isMindMap || isKdbx || isCode) {
     win.webContents.send(EVENT_NAME[type], {
       type: 'add',
       change: file
@@ -160,7 +164,8 @@ const change = async(
   const isGeoGebra = isGeoGebraFile(pathname)
   const isMindMap = isMindMapFile(pathname)
   const isKdbx = isKdbxFile(pathname)
-  if (isMarkdown) {
+  const isCode = isCodeOrTextFilePath(pathname)
+  if (isMarkdown || isCode) {
     try {
       const [data, stats] = await Promise.all([
         loadMarkdownFile(pathname, endOfLine, autoGuessEncoding, trimTrailingNewline, autoNormalizeLineEndings),
@@ -269,7 +274,8 @@ class Watcher {
           !isDrawioFile(pathname) &&
           !isGeoGebraFile(pathname) &&
           !isMindMapFile(pathname) &&
-          !isKdbxFile(pathname)
+          !isKdbxFile(pathname) &&
+          !isCodeOrTextFilePath(pathname)
         )
       },
       ignoreInitial: type === 'file',

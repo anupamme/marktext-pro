@@ -128,10 +128,22 @@ export class ParagraphFrontMenu extends BaseFloat {
         super.listen();
 
         eventCenter.subscribe('muya-front-menu', ({ reference, block }) => {
+            const isSourceOrCode = document.querySelector('.editor-container.code-file-open, .editor-wrapper.source, .editor-container .source-code') !== null;
+            if (isSourceOrCode) {
+                this.hide();
+                this._block = null;
+                return;
+            }
             if (reference) {
                 this._block = block;
 
                 setTimeout(() => {
+                    const isSourceOrCodeNow = document.querySelector('.editor-container.code-file-open, .editor-wrapper.source, .editor-container .source-code') !== null;
+                    if (isSourceOrCodeNow) {
+                        this.hide();
+                        this._block = null;
+                        return;
+                    }
                     this.show(reference);
                     this.render();
                 }, 0);

@@ -106,6 +106,27 @@ export interface IFileState {
   terminalSessionId?: string
   terminalConfig?: any
   terminalKdbxEntryId?: string
+  // Code / text files rendered by isolated CodeMirror editor.
+  isCodeFile?: boolean
+  codeLanguage?: string
+  codeMirrorState?: ICodeMirrorState
+}
+
+export interface ICodeMirrorState {
+  id: string
+  filename: string
+  pathname: string
+  text: string
+  isSaved: boolean
+  encoding: FileEncoding
+  lineEnding: LineEnding | string
+  trimTrailingNewline: number
+  cursor?: unknown
+  scrollTop?: number
+  codeLanguage: string
+  lastSavedHistoryId?: number
+  history?: unknown
+  cleanGeneration?: number
 }
 
 export type GeoGebraMode = 'graphing' | '3d' | 'geometry' | 'cas' | 'probability' | 'scientific'

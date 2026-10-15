@@ -120,9 +120,15 @@ export class ParagraphFrontButton {
         // Event) => void). Take Event and narrow with the `isMouseEvent`
         // guard — same pattern as `mouseMove` below — rather than casting
         // the wrapper to EventListener (which would hide a real mismatch).
+        const isSourceOrCode = () => {
+            return document.querySelector('.editor-container.code-file-open, .editor-wrapper.source, .editor-container .source-code') !== null;
+        };
+
         const mousemoveHandler = throttle((event: Event) => {
-            if (this._disableListen)
+            if (this._disableListen || isSourceOrCode()) {
+                this.hide();
                 return;
+            }
             if (!isMouseEvent(event))
                 return;
 
@@ -442,6 +448,11 @@ export class ParagraphFrontButton {
     }
 
     show(block: Parent) {
+        if (document.querySelector('.editor-container.code-file-open, .editor-wrapper.source, .editor-container .source-code') !== null) {
+            this.hide();
+            return;
+        }
+
         if (this._block && this._block === block)
             return;
 

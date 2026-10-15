@@ -47,7 +47,10 @@ const defaultFileStateWithoutId = {
   muyaIndexCursor: null,
   notifications: [],
   showHeadingNumbers: false,
-  headingNumberingIncludesTopLevel: false
+  headingNumberingIncludesTopLevel: false,
+  isCodeFile: false,
+  codeLanguage: '',
+  codeMirrorState: undefined
 } satisfies Omit<IFileState, 'id'>
 
 /**
@@ -94,7 +97,10 @@ const documentStateKeys = [
   'muyaIndexCursor',
   'notifications',
   'showHeadingNumbers',
-  'headingNumberingIncludesTopLevel'
+  'headingNumberingIncludesTopLevel',
+  'isCodeFile',
+  'codeLanguage',
+  'codeMirrorState'
 ] as const satisfies ReadonlyArray<keyof IFileState>
 
 export const getBlankFileState = (
@@ -154,6 +160,37 @@ export const createDocumentState = (
   for (const key of documentStateKeys) {
     if (src[key] !== undefined) {
       ;(docState as Record<string, unknown>)[key] = src[key]
+    }
+  }
+
+  const pathname = typeof src.pathname === 'string' ? src.pathname : (typeof docState.pathname === 'string' ? docState.pathname : '')
+  const isCode =
+    src.isCodeFile === true ||
+    docState.isCodeFile === true ||
+    (Boolean(pathname) && Boolean(window.fileUtils?.isCodeOrTextFilePath?.(pathname)))
+
+  if (isCode) {
+    ;(docState as Record<string, unknown>).isCodeFile = true
+    if (!docState.codeLanguage && pathname) {
+      ;(docState as Record<string, unknown>).codeLanguage =
+        window.fileUtils?.getCodeLanguageFromPath?.(pathname) || 'plaintext'
+    }
+    if (!(docState as Record<string, unknown>).codeMirrorState) {
+      ;(docState as Record<string, unknown>).codeMirrorState = {
+        id,
+        filename: (docState.filename as string) || '',
+        pathname,
+        text: (docState.markdown as string) || '',
+        isSaved: docState.isSaved !== false,
+        encoding: docState.encoding,
+        lineEnding: docState.lineEnding,
+        trimTrailingNewline: docState.trimTrailingNewline,
+        codeLanguage: (docState.codeLanguage as string) || 'plaintext',
+        cleanGeneration: undefined,
+        history: null,
+        cursor: null,
+        scrollTop: 0
+      }
     }
   }
 

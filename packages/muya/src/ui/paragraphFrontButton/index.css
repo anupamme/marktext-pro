@@ -115,3 +115,13 @@
 
     transition: opacity 0.2s ease-in-out;
 }
+
+body:has(.code-file-open) .mu-front-button-wrapper,
+body:has(.editor-wrapper.source) .mu-front-button-wrapper,
+.code-file-open .mu-front-button-wrapper,
+.editor-wrapper.source .mu-front-button-wrapper,
+.source-code ~ .mu-front-button-wrapper {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}

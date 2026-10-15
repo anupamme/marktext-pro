@@ -486,20 +486,22 @@ export const useEditorStore = defineStore('editor', {
       if (currentFile && pathname === currentFile.pathname) {
         // save current state first
         this.currentFile = tab
-        const { id, cursor, history, scrollTop, muyaIndexCursor } = tab // Should not use blocks history as this is loaded from disk
-        bus.emit('file-changed', {
-          id,
-          markdown,
-          muyaIndexCursor,
-          cursor,
-          renderCursor: true,
-          history,
-          scrollTop,
-          // External disk reload: the engine handler records the new content as a
-          // single invertible undo boundary (replaceContent) instead of clearing
-          // history (setContent), so the first undo restores the pre-reload doc.
-          isReload: true
-        })
+        if (!tab.isCodeFile) {
+          const { id, cursor, history, scrollTop, muyaIndexCursor } = tab // Should not use blocks history as this is loaded from disk
+          bus.emit('file-changed', {
+            id,
+            markdown,
+            muyaIndexCursor,
+            cursor,
+            renderCursor: true,
+            history,
+            scrollTop,
+            // External disk reload: the engine handler records the new content as a
+            // single invertible undo boundary (replaceContent) instead of clearing
+            // history (setContent), so the first undo restores the pre-reload doc.
+            isReload: true
+          })
+        }
       }
       debouncedSendBufferedState()
     },
@@ -646,7 +648,9 @@ export const useEditorStore = defineStore('editor', {
       if (this.currentFile.isTerminal) {
         return
       }
-      this.flushActiveEditor()
+      if (!this.currentFile.isCodeFile) {
+        this.flushActiveEditor()
+      }
       const projectStore = useProjectStore()
       const { id, filename, pathname, markdown } = this.currentFile
       const options = getOptionsFromState(this.currentFile)
@@ -748,6 +752,9 @@ export const useEditorStore = defineStore('editor', {
             if (entry && typeof entry.id === 'number') {
               tab.lastSavedHistoryId = entry.id
             }
+          }
+          if (tab.codeMirrorState) {
+            tab.codeMirrorState.isSaved = true
           }
           tab.isSaved = true
           debouncedSendBufferedState()
@@ -1290,7 +1297,8 @@ export const useEditorStore = defineStore('editor', {
           !oldCurrentFile.isGeoGebra &&
           !oldCurrentFile.isMindMap &&
           !oldCurrentFile.isKdbx &&
-          !oldCurrentFile.isTerminal
+          !oldCurrentFile.isTerminal &&
+          !oldCurrentFile.isCodeFile
         ) {
           this.flushActiveEditor()
         }
@@ -1308,7 +1316,8 @@ export const useEditorStore = defineStore('editor', {
           !currentFile.isGeoGebra &&
           !currentFile.isMindMap &&
           !currentFile.isKdbx &&
-          !currentFile.isTerminal
+          !currentFile.isTerminal &&
+          !currentFile.isCodeFile
         ) {
           bus.emit('file-changed', {
             id,
@@ -1766,6 +1775,7 @@ export const useEditorStore = defineStore('editor', {
           !fileState.isMindMap &&
           !fileState.isKdbx &&
           !fileState.isTerminal &&
+          !fileState.isCodeFile &&
           typeof fileState.markdown === 'string'
         ) {
           const { id, markdown, cursor, history, pathname, scrollTop, blocks, muyaIndexCursor } =
@@ -2152,7 +2162,9 @@ export const useEditorStore = defineStore('editor', {
 
       if (selected) {
         this.UPDATE_CURRENT_FILE(docState)
-        bus.emit('file-loaded', { id, markdown, cursor })
+        if (!docState.isCodeFile) {
+          bus.emit('file-loaded', { id, markdown, cursor })
+        }
       } else {
         this.tabs.push(docState)
         this.updateTabIdToIndex()
@@ -2414,13 +2426,16 @@ export const useEditorStore = defineStore('editor', {
         const tab = this.tabs.find((t) => t.id === id)
         if (tab && !tab.isSaved) {
           const defaultPath = getRootFolderFromState(projectStore)
+          const targetMarkdown = tab.isCodeFile ? tab.markdown : markdown
+          const targetFilename = tab.filename || filename
+          const targetPathname = tab.pathname || pathname
           window.electron.ipcRenderer.send(
             'mt::response-file-save',
             id,
-            filename,
-            pathname,
-            markdown,
-            deepClone(options),
+            targetFilename,
+            targetPathname,
+            targetMarkdown,
+            deepClone(options || getOptionsFromState(tab)),
             defaultPath
           )
         }

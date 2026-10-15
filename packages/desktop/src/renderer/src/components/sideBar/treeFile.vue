@@ -5,7 +5,7 @@
     class="side-bar-file"
     :style="{
       'padding-left': `${depth * 6 + 10}px`,
-      opacity: file.isMarkdown || file.isDrawing || file.isGeoGebra || file.isMindMap || file.isKdbx ? 1 : 0.75
+      opacity: isSupportedFile ? 1 : 0.75
     }"
     :class="[
       { current: currentFile?.pathname === file.pathname, active: isFileActive }
@@ -80,9 +80,17 @@ const isFileActive = computed<boolean>(() => {
     : active.pathname === props.file.pathname
 })
 
+const isSupportedFile = computed<boolean>(() => {
+  const f = props.file
+  if (f.isMarkdown || f.isDrawing || f.isGeoGebra || f.isMindMap || f.isKdbx || f.isCodeFile) {
+    return true
+  }
+  return window.fileUtils?.isCodeOrTextFilePath ? window.fileUtils.isCodeOrTextFilePath(f.pathname) : false
+})
+
 // from fileMixins
 const handleFileClick = (): void => {
-  const { isMarkdown, isDrawing, isGeoGebra, isMindMap, isKdbx, pathname } = props.file
+  const { isMarkdown, isDrawing, isGeoGebra, isMindMap, isKdbx, isCodeFile, pathname } = props.file
   projectStore.SELECT_PARENT_FOLDER_FOR_FILE(pathname)
   if (isDrawing || /\.drawio$/i.test(pathname)) {
     void window.electron.ipcRenderer.invoke(
@@ -113,7 +121,8 @@ const handleFileClick = (): void => {
     void window.electron.ipcRenderer.invoke('mt::kdbx::open', pathname)
     return
   }
-  if (!isMarkdown) return
+  const isCodeOrText = isCodeFile || (window.fileUtils?.isCodeOrTextFilePath ? window.fileUtils.isCodeOrTextFilePath(pathname) : false)
+  if (!isMarkdown && !isCodeOrText) return
   const openedTab = tabs.value.find((f) => window.fileUtils.isSamePathSync(f.pathname, pathname))
   if (openedTab) {
     if (currentFile.value?.pathname === openedTab.pathname) {

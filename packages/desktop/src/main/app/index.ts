@@ -6,7 +6,7 @@ import dayjs from 'dayjs'
 import log from 'electron-log'
 import { app, BrowserWindow, clipboard, dialog, nativeTheme, shell, ipcMain } from 'electron'
 import type { BrowserWindowConstructorOptions } from 'electron'
-import { isChildOfDirectory } from 'common/filesystem/paths'
+import { isChildOfDirectory, isCodeOrTextFilePath } from 'common/filesystem/paths'
 import { DEFAULT_LANGUAGE, isLanguageSupported } from 'common/i18n'
 import { normalizeAppTheme } from 'common/theme'
 import type { IUserPreferences } from '@shared/types/preferences'
@@ -88,6 +88,10 @@ const normalizeOpenPath = (pathname: string): PathInfo | null => {
     return resolved ? { isDir: false, path: resolved } : null
   }
   if (isKdbxFile(pathname) && fs.existsSync(pathname)) {
+    const resolved = normalizeAndResolvePath(pathname)
+    return resolved ? { isDir: false, path: resolved } : null
+  }
+  if (isCodeOrTextFilePath(pathname) && fs.existsSync(pathname)) {
     const resolved = normalizeAndResolvePath(pathname)
     return resolved ? { isDir: false, path: resolved } : null
   }
@@ -866,7 +870,7 @@ class App {
       if (editor) {
         editor.openTabsFromPaths(
           fileList
-            .map((p) => normalizeMarkdownPath(p))
+            .map((p) => normalizeOpenPath(p))
             .filter((i): i is PathInfo => i !== null && !i.isDir)
             .map((i) => i.path)
         )

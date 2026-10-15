@@ -15,7 +15,7 @@ import {
 } from 'electron'
 import log from 'electron-log'
 import { isDirectory, isFile, exists } from 'common/filesystem'
-import { isChildOfDirectory, MARKDOWN_EXTENSIONS, isMarkdownFile } from 'common/filesystem/paths'
+import { isChildOfDirectory, MARKDOWN_EXTENSIONS, CODE_AND_TEXT_EXTENSIONS, isMarkdownFile, isCodeOrTextFilePath } from 'common/filesystem/paths'
 import { checkUpdates, userSetting } from './marktextpro'
 import { COMMANDS } from '../../commands'
 import type { CommandManager } from '../../commands'
@@ -789,7 +789,9 @@ ipcMain.on('mt::window::drop', async (e, fileList: string[]) => {
       isMarkdownFile(file) ||
       isDrawioFile(file) ||
       isGeoGebraFile(file) ||
-      isMindMapFile(file)
+      isMindMapFile(file) ||
+      isKdbxFile(file) ||
+      isCodeOrTextFilePath(file)
     ) {
       openFileOrFolder(win, file)
       continue
@@ -951,14 +953,15 @@ ipcMain.on('mt::format-link-click', async (e, { data, dirname }: FormatLinkPaylo
         isDrawioFile(pathname) ||
         isGeoGebraFile(pathname) ||
         isMindMapFile(pathname) ||
-        isKdbxFile(pathname))
+        isKdbxFile(pathname) ||
+        isCodeOrTextFilePath(pathname))
 
     if (isWorkspaceDocument) {
       openFileOrFolder(win, pathname)
       return
     }
 
-    if (isMarkdownFile(pathname)) {
+    if (isMarkdownFile(pathname) || isCodeOrTextFilePath(pathname)) {
       const innerWin = BrowserWindow.fromWebContents(e.sender)
       if (innerWin) {
         openFileOrFolder(innerWin, pathname)
@@ -1059,8 +1062,12 @@ export const openFile = async (win: BrowserWindow | null): Promise<void> => {
     properties: ['openFile', 'multiSelections'],
     filters: [
       {
-        name: 'Markdown, Draw.io, GeoGebra, MindMap & KDBX',
-        extensions: [...MARKDOWN_EXTENSIONS, 'drawio', 'ggb', 'smm', 'kdbx']
+        name: 'Supported Documents & Files',
+        extensions: [...MARKDOWN_EXTENSIONS, ...CODE_AND_TEXT_EXTENSIONS, 'drawio', 'ggb', 'smm', 'kdbx']
+      },
+      {
+        name: 'All Files',
+        extensions: ['*']
       }
     ]
   })

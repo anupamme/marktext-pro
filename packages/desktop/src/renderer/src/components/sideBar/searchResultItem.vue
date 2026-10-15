@@ -146,7 +146,7 @@ const handleSearchResultClick = (searchMatch: SearchMatch): void => {
     openedTab.cursor = cursor
     if (currentFile.value !== openedTab) {
       editorStore.UPDATE_CURRENT_FILE(openedTab)
-    } else {
+    } else if (!currentFile.value?.isCodeFile) {
       const { id, markdown, history } = currentFile.value
       bus.emit('file-changed', {
         id,

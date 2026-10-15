@@ -116,6 +116,10 @@ declare global {
     isExecutable(p: string): Promise<boolean>
     isChildOfDirectory(dir: string, child: string): boolean
     hasMarkdownExtension(filename: string): boolean
+    hasCodeOrTextExtension?(filename: string): boolean
+    isCodeOrTextFilePath?(pathname?: string): boolean
+    isCodeOrTextFileName?(filename?: string): boolean
+    getCodeLanguageFromPath?(pathname?: string): string
     isSamePathSync(a: string, b: string, isNormalized?: boolean): boolean
     isImageFile(p: string): Promise<boolean>
     MARKDOWN_INCLUSIONS: string[]

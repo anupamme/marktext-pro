@@ -30,6 +30,7 @@ interface TreeFile {
   isDrawing?: boolean
   isGeoGebra?: boolean
   isMindMap?: boolean
+  isCodeFile?: boolean
 }
 
 type AddFileInput = Omit<TreeFile, 'id'>
@@ -116,6 +117,7 @@ export const addFile = (tree: TreeFolder, file: AddFileInput, sortBy: string = '
     existingFile.isDrawing = file.isDrawing
     existingFile.isGeoGebra = file.isGeoGebra
     existingFile.isMindMap = file.isMindMap
+    existingFile.isCodeFile = file.isCodeFile
   } else {
     // Remove file content from object.
     const fileCopy: TreeFile = {
@@ -128,6 +130,7 @@ export const addFile = (tree: TreeFolder, file: AddFileInput, sortBy: string = '
       isDrawing: file.isDrawing,
       isGeoGebra: file.isGeoGebra,
       isMindMap: file.isMindMap,
+      isCodeFile: file.isCodeFile,
       name: file.name,
       pathname: file.pathname
     }

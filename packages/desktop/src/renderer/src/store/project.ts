@@ -197,7 +197,10 @@ export const useProjectStore = defineStore('project', () => {
           String(preferencesStore.fileSortBy),
           String(preferencesStore.fileSortOrder)
         )
-        if (isMarkdown && newFileNameCache.value && pathname === newFileNameCache.value) {
+        const isCode =
+          Boolean(change.isCodeFile) ||
+          (Boolean(pathname) && Boolean(window.fileUtils?.isCodeOrTextFilePath ? window.fileUtils.isCodeOrTextFilePath(pathname) : false))
+        if ((isMarkdown || isCode) && newFileNameCache.value && pathname === newFileNameCache.value) {
           const fileState = getFileStateFromData(data as Record<string, unknown>)
           editorStore.UPDATE_CURRENT_FILE(fileState)
           newFileNameCache.value = ''
@@ -418,7 +421,8 @@ export const useProjectStore = defineStore('project', () => {
 
     if (type === 'file') {
       fileType = 'file'
-      if (!window.fileUtils.hasMarkdownExtension(storedName)) {
+      const isCode = window.fileUtils?.isCodeOrTextFileName ? window.fileUtils.isCodeOrTextFileName(storedName) : false
+      if (!window.fileUtils.hasMarkdownExtension(storedName) && !isCode) {
         storedName += '.md'
       }
     } else if (type === 'drawing') {

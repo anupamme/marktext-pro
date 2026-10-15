@@ -149,3 +149,13 @@
 .mu-front-menu li.turn-into-menu .turn-into-item .icon-wrapper:hover {
     background: var(--float-hover-color);
 }
+
+body:has(.code-file-open) .mu-front-menu,
+body:has(.editor-wrapper.source) .mu-front-menu,
+.code-file-open .mu-front-menu,
+.editor-wrapper.source .mu-front-menu,
+.source-code ~ .mu-front-menu {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}

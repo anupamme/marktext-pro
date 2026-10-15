@@ -151,7 +151,8 @@ const ensureViewLoaded = async (
     entry.view.webContents.send('mt::pdf::theme', {
       dark: config.dark,
       theme: config.theme,
-      colors: config.colors
+      colors: config.colors,
+      language: config.language
     })
     return
   }
@@ -165,16 +166,20 @@ const ensureViewLoaded = async (
   const viewerUrl = new URL(pathToFileURL(viewerPath).toString())
   const fileUrl = pathToFileURL(filePath).toString()
 
+  const lang = config.language || 'zh-CN'
   viewerUrl.searchParams.set('file', fileUrl)
+  viewerUrl.searchParams.set('locale', lang)
   viewerUrl.searchParams.set('dark', config.dark ? '1' : '0')
   viewerUrl.searchParams.set('theme', config.theme || 'light')
   viewerUrl.searchParams.set('colors', JSON.stringify(config.colors || {}))
+  viewerUrl.hash = `locale=${encodeURIComponent(lang)}`
 
   entry.view.webContents.once('did-finish-load', () => {
     entry.view.webContents.send('mt::pdf::theme', {
       dark: config.dark,
       theme: config.theme,
-      colors: config.colors
+      colors: config.colors,
+      language: config.language
     })
   })
 
@@ -474,7 +479,8 @@ export const initPdfIpc = (): void => {
         doc.view.webContents.send('mt::pdf::theme', {
           dark: windowEntry.configuration.dark,
           theme: windowEntry.configuration.theme,
-          colors: windowEntry.configuration.colors
+          colors: windowEntry.configuration.colors,
+          language: windowEntry.configuration.language
         })
       }
     }
@@ -490,7 +496,7 @@ export const initPdfIpc = (): void => {
     const win = BrowserWindow.fromWebContents(event.sender)
     if (!win) return null
     const result = await dialog.showOpenDialog(win, {
-      title: '选择图片',
+      title: '选择插入图片',
       properties: ['openFile'],
       filters: [
         {
@@ -544,7 +550,8 @@ export const initPdfIpc = (): void => {
       event.sender.send('mt::pdf::theme', {
         dark: config.dark,
         theme: config.theme,
-        colors: config.colors
+        colors: config.colors,
+        language: config.language
       })
     }
   })

@@ -1978,5 +1978,15 @@
       "testFailed": "Connection test failed: {error}",
       "saveSuccess": "Connection config saved"
     }
+  },
+  "pdf": {
+    "document": "PDF-Dokument",
+    "saved": "PDF gespeichert",
+    "saveFailed": "Fehler beim Speichern der PDF",
+    "highlight": "Hervorheben",
+    "text": "Text hinzufügen",
+    "draw": "Zeichnen",
+    "stamp": "Bild hinzufügen",
+    "signature": "Digitale Signatur"
   }
 }

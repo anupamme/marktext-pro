@@ -5,6 +5,7 @@
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
+import bus from '../../bus'
 import { usePreferencesStore } from '@/store/preferences'
 import { getPdfConfiguration } from '@/util/pdfConfiguration'
 import { useLayoutStore } from '@/store/layout'
@@ -15,7 +16,7 @@ const surfaceRef = ref<HTMLDivElement | null>(null)
 const preferencesStore = usePreferencesStore()
 const layoutStore = useLayoutStore()
 const editorStore = useEditorStore()
-const { zoom } = storeToRefs(preferencesStore)
+const { zoom, language } = storeToRefs(preferencesStore)
 const { currentFile } = storeToRefs(editorStore)
 const { rightColumn, sideBarWidth, showSideBar } = storeToRefs(layoutStore)
 let boundsSyncAnimationFrame = 0
@@ -90,6 +91,8 @@ const syncBoundsDuringZoom = (duration = 220): void => {
   boundsSyncAnimationFrame = window.requestAnimationFrame(step)
 }
 
+const onLanguageChanged = (): void => syncConfiguration(true)
+
 onMounted(() => {
   syncConfiguration(true)
   void showPdf()
@@ -97,6 +100,7 @@ onMounted(() => {
     syncConfiguration(true)
     void showPdf()
   })
+  bus.on('language-changed', onLanguageChanged)
   window.addEventListener('resize', syncBounds)
   window.addEventListener('marktextpro:resume-native-editor', resumeAfterHostOverlay)
   window.addEventListener('marknotepro:resume-native-editor', resumeAfterHostOverlay)
@@ -112,6 +116,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   if (boundsSyncAnimationFrame) window.cancelAnimationFrame(boundsSyncAnimationFrame)
   if (removeOpenedListener) removeOpenedListener()
+  bus.off('language-changed', onLanguageChanged)
   window.removeEventListener('resize', syncBounds)
   window.removeEventListener('marktextpro:resume-native-editor', resumeAfterHostOverlay)
   window.removeEventListener('marknotepro:resume-native-editor', resumeAfterHostOverlay)
@@ -133,6 +138,7 @@ watch(
 
 watch([sideBarWidth, showSideBar, rightColumn], () => nextTick(syncBounds))
 watch(zoom, () => syncBoundsDuringZoom())
+watch(language, () => syncConfiguration(true))
 </script>
 
 <style scoped>

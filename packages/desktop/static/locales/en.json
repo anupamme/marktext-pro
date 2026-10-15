@@ -1414,5 +1414,15 @@
       "testFailed": "Connection test failed: {error}",
       "saveSuccess": "Connection config saved"
     }
+  },
+  "pdf": {
+    "document": "PDF Document",
+    "saved": "PDF Saved",
+    "saveFailed": "Failed to save PDF",
+    "highlight": "Highlight Text",
+    "text": "Add Text",
+    "draw": "Freehand Draw",
+    "stamp": "Add Image",
+    "signature": "Digital Signature"
   }
 }

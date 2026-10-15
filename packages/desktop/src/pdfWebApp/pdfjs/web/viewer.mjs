@@ -3167,7 +3167,14 @@ class ExternalServices extends BaseExternalServices {
     super();
   }
   async createL10n() {
-    return new genericl10n_GenericL10n(AppOptions.get("localeProperties")?.lang);
+    let lang = AppOptions.get("localeProperties")?.lang;
+    try {
+      const searchParams = new URLSearchParams(window.location.search);
+      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+      const paramLang = searchParams.get("locale") || hashParams.get("locale");
+      if (paramLang) lang = paramLang;
+    } catch {}
+    return new genericl10n_GenericL10n(lang || "zh-CN");
   }
   createScripting() {
     return new GenericScripting(AppOptions.get("sandboxBundleSrc"), AppOptions.get("wasmUrl"));
@@ -18932,6 +18939,18 @@ const PDFViewerApplication = {
     this.bindWindowEvents();
     this._initializedCapability.settled = true;
     this._initializedCapability.resolve();
+  },
+  async setLanguage(lang) {
+    if (!lang) return;
+    try {
+      AppOptions.set("localeProperties", { lang });
+      const newL10n = new genericl10n_GenericL10n(lang);
+      this.l10n = newL10n;
+      document.getElementsByTagName("html")[0].dir = newL10n.getDirection();
+      await newL10n.translate(this.appConfig?.appContainer || document.documentElement);
+    } catch (e) {
+      console.warn("Failed to set PDF language dynamically:", e);
+    }
   },
   async _parseHashParams() {
     const hash = document.location.hash.substring(1);

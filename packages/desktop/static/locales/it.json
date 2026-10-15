@@ -1977,5 +1977,15 @@
       "testFailed": "Connection test failed: {error}",
       "saveSuccess": "Connection config saved"
     }
+  },
+  "pdf": {
+    "document": "Documento PDF",
+    "saved": "PDF salvato",
+    "saveFailed": "Impossibile salvare il PDF",
+    "highlight": "Evidenzia",
+    "text": "Aggiungi testo",
+    "draw": "Disegno a mano libera",
+    "stamp": "Aggiungi immagine",
+    "signature": "Firma digitale"
   }
 }

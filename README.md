@@ -30,7 +30,7 @@
     <span> | </span>
     <a href="#产品选择">产品选择</a>
     <span> | </span>
-    <a href="#内置创作与安全引擎drawio-geogebra-mindmap-与-kdbx">内置创作与安全引擎</a>
+    <a href="#内置创作与安全引擎drawio-geogebra-mindmap-kdbx-与-pdf">内置创作与安全引擎</a>
     <span> | </span>
     <a href="#文件工作区模型">工作区模型</a>
     <span> | </span>
@@ -44,11 +44,11 @@
 
 ## 产品定位
 
-MarkTextPro 是一款集成 Git 的多模态 Markdown 文件编辑管理器。它保留原生自由文件夹管理方式，适合编辑外部 Markdown、维护项目文档、整理本地资料，也适合在真实代码仓库中直接创建与编辑架构图、数学建模或思维导图，并无缝使用 Git 进行版本提交、同步与回滚。
+MarkTextPro 是一款集成 Git 的多模态 Markdown 文件编辑管理器。它保留原生自由文件夹管理方式，适合编辑外部 Markdown、维护项目文档、整理本地资料，也适合在真实代码仓库中直接创建与编辑架构图、数学建模、思维导图与阅读批注 PDF，并无缝使用 Git 进行版本提交、同步与回滚。
 
 ## 产品选择
 
-MarkTextPro 和 MarkNotePro 是两个相互独立、但能力互补的产品。两个产品均原生具备 Markdown、Draw.io、GeoGebra、MindMap 与 KDBX 加密密码库能力；差异在于 MarkTextPro 面向真实文件夹、项目仓库和外部独立文件，MarkNotePro 面向分区组 / 分区 / 文档的结构化知识工作区。
+MarkTextPro 和 MarkNotePro 是两个相互独立、但能力互补的产品。两个产品均原生具备 Markdown、Draw.io、GeoGebra、MindMap 与 KDBX 加密密码库能力，且均将具备 PDF 专业阅读与多模态批注能力（MarkNotePro 将在下一步全面补充上线）；差异在于 MarkTextPro 面向真实文件夹、项目仓库和外部独立文件，MarkNotePro 面向分区组 / 分区 / 文档的结构化知识工作区。
 
 - **MarkTextPro**：集成 Git 的多模态文件编辑管理器，强调自由文件夹结构、外部独立文档、代码项目协作与临时编辑。
 - **MarkNotePro**：集成 Git 的结构化本地笔记工作台，强调笔记工作区、分区组、分区、笔记层级与长期知识管理。
@@ -84,19 +84,20 @@ MarkTextPro 和 MarkNotePro 是两个相互独立、但能力互补的产品。�
 | 使用场景 / 需求 | 推荐产品 |
 | --- | --- |
 | 你主要在真实文件夹、代码仓库中工作，或频繁编辑外部独立文档与项目 README | MarkTextPro |
-| 你需要在自由文件夹、项目仓库或外部路径中直接创建与管理 Markdown、Draw.io 架构图、GeoGebra 数学模型、MindMap 思维导图或 KDBX 密码库（含 2FA & SSH 直连） | MarkTextPro |
+| 你需要在自由文件夹、项目仓库或外部路径中直接创建与管理 Markdown、Draw.io 架构图、GeoGebra 数学模型、MindMap 思维导图、KDBX 密码库（含 2FA & SSH 直连），或对 PDF 进行专业批注阅读 | MarkTextPro |
 | 你希望保留真实文件系统目录结构，不希望被笔记层级约束 | MarkTextPro |
 | 你需要一个更自由的本地多模态文件与项目工作区管理器 | MarkTextPro |
 | 你希望像管理笔记本一样管理长期笔记、结构化知识库与项目资料 | MarkNotePro |
-| 你需要在结构化笔记中直接进行 Markdown 写作、绘制 Draw.io 架构图/流程图、使用 GeoGebra 数学建模，或绘制 MindMap 思维导图 | MarkNotePro |
+| 你需要在结构化笔记中直接进行 Markdown 写作、绘制 Draw.io 架构图/流程图、使用 GeoGebra 数学建模、绘制 MindMap 思维导图，或进行 PDF 批注阅读 | MarkNotePro |
 | 你接受并需要工作区、分区组、分区、文档这种结构化层级 | MarkNotePro |
 | 你希望侧边栏只呈现笔记体系，减少普通杂乱文件夹带来的干扰 | MarkNotePro |
 
 ## 核心能力
 
-- **本地文件夹管理**：直接打开文件夹，按真实目录结构混合管理 Markdown、Draw.io 绘图、GeoGebra 数学模型、MindMap 思维导图与 KDBX 密码库（含 2FA & SSH 直连）。
-- **外部文档快速编辑**：可以打开工作区外的 `.md`、`.drawio`、`.ggb`、`.smm`、`.kdbx` 文件，适合临时查看、快速编辑和专业处理。
-- **多标签与多类型协同编辑**：支持多个 Markdown、Draw.io 绘图、GeoGebra、思维导图与 KDBX 密钥库同时打开、平滑切换与保活编辑。
+- **本地文件夹管理**：直接打开文件夹，按真实目录结构混合管理 Markdown、Draw.io 绘图、GeoGebra 数学模型、MindMap 思维导图、KDBX 密码库（含 2FA & SSH 直连）与 PDF 文档。
+- **外部文档快速编辑**：可以打开工作区外的 `.md`、`.drawio`、`.ggb`、`.smm`、`.kdbx`、`.pdf` 文件，适合临时查看、快速编辑、阅读批注和专业处理。
+- **多标签与多类型协同编辑**：支持多个 Markdown、Draw.io 绘图、GeoGebra、思维导图、KDBX 密钥库与 PDF 批注同时打开、平滑切换与保活编辑。
+- **内置 PDF 专业阅读与批注引擎**：本地离线集成 Mozilla PDF.js 全功能引擎，支持页面流式阅读、目录大纲导航、缩略图、多语言全文字符搜索、页面旋转与自适应缩放；深度集成丰富批注工具集：**文本高亮**（多色标记与透明度控制）、**下划线/删除线**、**自由手绘涂鸦（Ink）**、**添加文本批注**、**插入图片/图章**与**电子签名**；原生拦截快捷键 `Cmd+S / Ctrl+S` 原地覆盖保存源文件（无多余另存为弹窗），修改红点状态精准双向同步，暗色/明亮主题自动适配。
 - **内置 Draw.io 专业绘图引擎**：本地离线集成完整 Draw.io 编辑器，支持直接创建、编辑、自动保存 `.drawio` 图表文件，支持导出 PNG、JPEG、SVG、PDF、HTML、XML 等格式。
 - **内置 GeoGebra 数学与几何套件**：本地离线集成官方 GeoGebra 全功能引擎，支持**绘图计算**、**几何**、**3D 计算器**、**CAS（计算机代数）**、**概率统计**与**科学计算器**六大模式，支持导出 `.ggb`、`.png`、`.svg`、`.pdf`、`.stl`（3D 打印）及直接打印。
 - **内置 MindMap 专业思维导图引擎**：本地离线集成全功能思维导图工作台，原生支持**思维导图**、**逻辑结构图**、**目录组织图**、**组织结构图**、**时间轴**、**鱼骨图**等 6 种经典脑图结构；支持节点富文本、LaTeX 数学公式、节点图标/贴纸、超链接、关联线、概要节点、外框、备注与标签；提供大纲编辑与快捷键面板，支持导入 XMind / Markdown / .smm 并支持导出 PNG、SVG、PDF、Markdown、JSON 及直接调用系统打印。
@@ -109,9 +110,9 @@ MarkTextPro 和 MarkNotePro 是两个相互独立、但能力互补的产品。�
 - **集成 Git 工作区**：内置 Git 操作界面，支持仓库添加、克隆、变更查看、提交、分支、拉取、推送等操作。
 - **文件工作区与 Git 仓库联动**：可以从 Git 仓库切换文件工作区，也可以在工作区根目录重命名后同步更新 Git 仓库路径。
 
-## 内置创作与安全引擎：Draw.io、GeoGebra、MindMap 与 KDBX
+## 内置创作与安全引擎：Draw.io、GeoGebra、MindMap、KDBX 与 PDF
 
-除了 Markdown 写作，MarkTextPro 还将工程图表、理工科数学建模与思维导图能力直接纳入同一个自由文件工作区，所有引擎均随客户端本地打包、**100% 离线可用**，无需依赖外部网页或云端账号：
+除了 Markdown 写作，MarkTextPro 还将工程图表、理工科数学建模、思维导图与专业 PDF 阅读批注能力直接纳入同一个自由文件工作区，所有引擎均随客户端本地打包、**100% 离线可用**，无需依赖外部网页或云端账号：
 
 | 创作引擎 | 文件后缀 | 支持模式与核心特性 | 导出与格式支持 |
 | --- | --- | --- | --- |
@@ -119,6 +120,7 @@ MarkTextPro 和 MarkNotePro 是两个相互独立、但能力互补的产品。�
 | **GeoGebra 数学套件** | `.ggb` | <ul><li>**绘图计算（Graphing）**：函数图像、导数积分、滑动条、数值表格与完整几何作图工具集</li><li>**几何（Geometry）**：尺规作图、多边形、圆锥曲线、度量与几何变换</li><li>**3D 计算器（3D Graphing）**：空间曲面、立体几何、空间向量与平面交线</li><li>**CAS 计算机代数**：符号微积分、方程精确求解、因式分解与矩阵运算</li><li>**概率统计（Probability）**：正态/二项/泊松等概率分布可视化与区间概率计算</li><li>**科学计算器（Scientific）**：函数定义、数值表格对照与科学运算</li></ul> | 插入的图片自动内嵌封装于 `.ggb` 包内；支持导出 `.ggb`、`.png`、`.svg`、`.pdf`、`.stl`（3D 打印）及直接打印 |
 | **MindMap 思维导图** | `.smm` | <ul><li>**6 种专业结构**：思维导图、逻辑结构图、目录组织图、组织结构图、时间轴、鱼骨图，支持在新建或编辑时自由切换</li><li>**丰富节点元素**：自由节点、节点富文本、LaTeX 数学公式、节点图标/贴纸、超链接、关联线、概要节点、外框、备注与自定义标签</li><li>**高效编辑辅助**：大纲视图双向同步编辑、节点搜索与批量替换、直观便捷的快捷键面板</li><li>**智能导入导出**：支持导入 `.xmind`、`.md`、`.smm`、`.json`、`.mind` 格式；支持导出 `PNG`、`SVG`、`PDF`、`Markdown`、`JSON` 以及直接调用系统打印</li></ul> | 支持导出多种通用格式及直接打印 |
 | **KDBX 加密密码库** | `.kdbx` | KeePass 兼容加密密码库，支持创建与解锁、分组、标签、历史版本、自定义字段、附件、回收站、批量导入导出与主密码重置；内置 2FA 动态口令计算与识别，以及 SSH / 终端会话一键快捷直连 | 密钥库由独立主密码加密保护；内置 KDBXWeb 与专业终端工作台，支持在工作区和外部路径直接打开 |
+| **PDF 阅读与批注引擎** | `.pdf` | 页面流式浏览、目录导航、文本选择与搜索；**文本高亮与划线**、**自由手绘涂鸦 (Ink)**、**添加文字批注**、**插入图片/图章**与**电子签名**；快捷键原地覆盖保存与暗色主题自适应 | 100% 离线，修改直接覆写保存源文件，无多余弹窗 |
 
 ## KDBX 加密密码库（含 2FA 与 SSH 直连支持）
 
@@ -148,7 +150,7 @@ MarkNotePro 与 MarkTextPro 共同基于 KDBXWeb 与终端协议栈打造这套*
 
 ## 文件工作区模型
 
-MarkTextPro 的工作区就是一个真实文件夹。它不会强制分区组、分区、笔记层级，而是尊重本地目录结构；同时支持在任意文件夹下混合管理 Markdown、Draw.io 绘图、GeoGebra 数学模型、MindMap 思维导图与 KDBX 加密密码库，并过滤掉对日常创作无意义的开发噪音目录，保持侧边栏清爽。
+MarkTextPro 的工作区就是一个真实文件夹。它不会强制分区组、分区、笔记层级，而是尊重本地目录结构；同时支持在任意文件夹下混合管理 Markdown、Draw.io 绘图、GeoGebra 数学模型、MindMap 思维导图、KDBX 加密密码库与 PDF 文档，并过滤掉对日常创作无意义的开发噪音目录，保持侧边栏清爽。
 
 ```mermaid
 flowchart TD
@@ -158,6 +160,7 @@ flowchart TD
   Folder --> GGB["GeoGebra 数学文档 (.ggb)"]
   Folder --> MindMap["MindMap 思维导图 (.smm)"]
   Folder --> KDBX["KDBX 加密密码库 (.kdbx)"]
+  Folder --> PDF["PDF 文档 (.pdf)"]
   Folder --> Other["其它普通文件"]
   Root --> Attach["Attachments 附件目录"]
   Root -. "默认隐藏" .-> Git[".git"]
@@ -169,7 +172,7 @@ flowchart TD
 工作区规则：
 
 - 文件夹名称和文件名称按真实文件系统显示。
-- 支持直接打开 Markdown、Draw.io（`.drawio`）、GeoGebra（`.ggb`）、思维导图（`.smm`）与 KDBX 密码库（`.kdbx`）进行本地编辑或管理，其它普通文件作为项目上下文存在。
+- 支持直接打开 Markdown、Draw.io（`.drawio`）、GeoGebra（`.ggb`）、思维导图（`.smm`）、KDBX 密码库（`.kdbx`）与 PDF（`.pdf`）进行本地编辑、管理或批注，其它普通文件作为项目上下文存在。
 - 剪切、粘贴、重命名、删除文件或文件夹时，会同步处理已打开标签的路径指向。
 - 删除工作区内文件时，相关编辑标签会同步关闭，避免继续编辑已不存在的文件。
 - 根目录重命名后，会同步更新受管 Git 仓库路径。
@@ -308,6 +311,7 @@ MarkTextPro 集成了以下开源与第三方核心组件，各组件遵循其�
 - **GeoGebra**：遵循 [GeoGebra License](https://www.geogebra.org/license)（源码遵循 **GPLv3**，软件、文档与语言资源遵循 **GeoGebra Non-Commercial License Agreement / CC BY-NC-SA 3.0**，仅限非商业用途免费使用，商业用途须同时遵守 GeoGebra 官方商业许可要求）。
 - **simple-mind-map (思绪思维导图)**：遵循 [MIT License](https://github.com/wanglin2/mind-map/blob/main/LICENSE)（`Copyright (c) 2021-2023 The MindMap Team / wanglin2`）。
 - **KDBXWeb**：遵循 [MIT License](https://github.com/keeweb/kdbxweb/blob/master/LICENSE)（`Copyright (C) 2021-2025 Antelle`），其完整许可证文本保留在 `packages/desktop/src/kdbxWebApp/kdbxweb/LICENSE`。
+- **PDF.js**：遵循 [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)（`Copyright 2024 Mozilla Foundation`），其完整许可证文本保留在 `packages/desktop/src/pdfWebApp/pdfjs/LICENSE`。
 - **Tabby**：遵循 [MIT License](https://github.com/Eugeny/tabby/blob/master/LICENSE)（`Copyright (c) 2017-present Eugenia Kim (Eugeny)`）。MarkTextPro 的终端会话与色盘配置参考其开源实现。
 - **GitHub Desktop**：遵循 MIT License（`Copyright (c) GitHub, Inc.`）。
 - **MarkText & Muya**：遵循 MIT License（`Copyright (c) 2017-present Luo Ran & MarkText Contributors`）。

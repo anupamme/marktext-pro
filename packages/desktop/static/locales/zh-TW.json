@@ -1984,5 +1984,15 @@
       "testFailed": "Connection test failed: {error}",
       "saveSuccess": "Connection config saved"
     }
+  },
+  "pdf": {
+    "document": "PDF 文件",
+    "saved": "PDF 已儲存",
+    "saveFailed": "PDF 儲存失敗",
+    "highlight": "文字醒目提示",
+    "text": "新增文字",
+    "draw": "手寫繪圖",
+    "stamp": "新增圖片",
+    "signature": "電子簽名"
   }
 }

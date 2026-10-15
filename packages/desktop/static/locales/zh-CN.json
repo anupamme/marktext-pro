@@ -1991,5 +1991,15 @@
       "testFailed": "连接测试失败: {error}",
       "saveSuccess": "已保存连接配置"
     }
+  },
+  "pdf": {
+    "document": "PDF 文档",
+    "saved": "PDF 已保存",
+    "saveFailed": "PDF 保存失败",
+    "highlight": "文本高亮",
+    "text": "添加文本",
+    "draw": "自由绘制",
+    "stamp": "添加图片",
+    "signature": "电子签名"
   }
 }

@@ -197,6 +197,9 @@ function initBridge() {
     ipc.on('mt::pdf::theme', (_event, payload) => {
       if (payload) {
         applyThemeColors(payload.colors, payload.dark)
+        if (payload.language && typeof window.PDFViewerApplication?.setLanguage === 'function') {
+          window.PDFViewerApplication.setLanguage(payload.language)
+        }
       }
     })
     // Proactively request latest theme from main process

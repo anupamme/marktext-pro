@@ -205,11 +205,23 @@ fileAssociations:
     mimeType: application/x-keepass2
     role: Editor
     icon: icons/md.ico
+  - ext: txt
+    name: Text Document
+    description: Plain text document
+    mimeType: text/plain
+    role: Editor
+    icon: icons/md.ico
+  - ext: text
+    name: Text Document
+    description: Plain text document
+    mimeType: text/plain
+    role: Editor
+    icon: icons/md.ico
   - ext: pdf
     name: PDF Document
     description: Portable Document Format
     mimeType: application/pdf
-    role: Viewer
+    role: Editor
     icon: icons/md.ico
 win:
   executableName: marktextpro
@@ -268,6 +280,7 @@ linux:
     - 'application/json'
     - 'application/x-simple-mind-map'
     - 'application/x-keepass2'
+    - 'application/pdf'
   icon: 'static/icon.png'
   desktop:
     entry:
@@ -313,3 +326,12 @@ linux:
     - ext: 'kdbx'
       name: 'KeePass KDBX Password Vault'
       description: 'KeePass compatible encrypted password vault'
+    - ext: 'txt'
+      name: 'Text Document'
+      description: 'Plain text document'
+    - ext: 'text'
+      name: 'Text Document'
+      description: 'Plain text document'
+    - ext: 'pdf'
+      name: 'PDF Document'
+      description: 'Portable Document Format'

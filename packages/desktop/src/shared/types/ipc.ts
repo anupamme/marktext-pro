@@ -110,6 +110,13 @@ export interface MindMapConfiguration {
   colors?: Record<string, string>
 }
 
+export interface PdfConfiguration {
+  language: string
+  dark: boolean
+  theme: string
+  colors: Record<string, string>
+}
+
 export interface DrawioExportPayload {
   format: string
   filename?: string
@@ -161,6 +168,16 @@ export interface IpcInvokeChannels {
   'mt::mindmap::close-file': { args: [filePath: string]; ret: void }
   'mt::mindmap::show': { args: [bounds: DrawioBounds]; ret: void }
   'mt::mindmap::capture-snapshot': { args: []; ret: string | null }
+  'mt::pdf::open': {
+    args: [pathname: string, configuration?: PdfConfiguration]
+    ret: void
+  }
+  'mt::pdf::configure': { args: [configuration: PdfConfiguration]; ret: void }
+  'mt::pdf::save': { args: [data: unknown]; ret: void }
+  'mt::pdf::save-request': { args: [filePath: string]; ret: void }
+  'mt::pdf::close-file': { args: [filePath: string]; ret: void }
+  'mt::pdf::show': { args: [bounds: DrawioBounds]; ret: void }
+  'mt::pdf::capture-snapshot': { args: []; ret: string | null }
   'mt::mindmap::ready': {
     args: []
     ret: {
@@ -411,9 +428,12 @@ export interface IpcSendChannels {
   'mt::mindmap-menu-mode': [enabled: boolean]
   'mt::kdbx-menu-mode': [enabled: boolean]
   'mt::terminal-menu-mode': [enabled: boolean]
+  'mt::pdf-menu-mode': [enabled: boolean]
   'mt::mindmap::hide': []
   'mt::mindmap::set-bounds': [bounds: DrawioBounds]
   'mt::mindmap::state': [payload: { modified?: boolean; data?: unknown }]
+  'mt::pdf::hide': []
+  'mt::pdf::set-bounds': [bounds: DrawioBounds]
   'mt::drawio::set-bounds': [bounds: DrawioBounds]
   'mt::drawio-autosave-changed': [enabled: boolean]
   'mt::window::drop': [payload: unknown]
@@ -526,6 +546,21 @@ export interface IpcMainEventChannels {
     }
   ]
   'mt::mindmap::request-save': []
+  'mt::pdf::opened': [payload: { filePath: string; title: string }]
+  'mt::pdf::closed': [payload: { filePath: string }]
+  'mt::pdf::state': [
+    payload: {
+      filePath: string
+      modified: boolean
+      isSaved: boolean
+      isSaving: boolean
+      page?: number
+      scale?: number | string
+      rotation?: number
+      sidebarView?: number
+      saveError?: string
+    }
+  ]
   'mt::kdbx::opened': [payload: { filePath: string; title: string }]
   'mt::kdbx::state': [
     payload: {

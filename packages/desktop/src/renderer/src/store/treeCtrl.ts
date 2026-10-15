@@ -31,6 +31,7 @@ interface TreeFile {
   isGeoGebra?: boolean
   isMindMap?: boolean
   isCodeFile?: boolean
+  isPdf?: boolean
 }
 
 type AddFileInput = Omit<TreeFile, 'id'>

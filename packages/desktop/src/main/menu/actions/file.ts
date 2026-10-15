@@ -34,6 +34,7 @@ import {
   saveMindMapDocuments
 } from '../../mindmap'
 import { isKdbxFile, openKdbxFile, saveKdbxDocuments } from '../../kdbx'
+import { isPdfFile, openPdfFile } from '../../pdf'
 import { normalizeAndResolvePath, writeFile } from '../../filesystem'
 import { writeMarkdownFile } from '../../filesystem/markdown'
 import { getPath, getRecommendTitleFromMarkdownString } from '../../utils'
@@ -791,6 +792,7 @@ ipcMain.on('mt::window::drop', async (e, fileList: string[]) => {
       isGeoGebraFile(file) ||
       isMindMapFile(file) ||
       isKdbxFile(file) ||
+      isPdfFile(file) ||
       isCodeOrTextFilePath(file)
     ) {
       openFileOrFolder(win, file)
@@ -954,6 +956,7 @@ ipcMain.on('mt::format-link-click', async (e, { data, dirname }: FormatLinkPaylo
         isGeoGebraFile(pathname) ||
         isMindMapFile(pathname) ||
         isKdbxFile(pathname) ||
+        isPdfFile(pathname) ||
         isCodeOrTextFilePath(pathname))
 
     if (isWorkspaceDocument) {
@@ -966,7 +969,7 @@ ipcMain.on('mt::format-link-click', async (e, { data, dirname }: FormatLinkPaylo
       if (innerWin) {
         openFileOrFolder(innerWin, pathname)
       }
-    } else if (isDrawioFile(pathname) || isGeoGebraFile(pathname) || isMindMapFile(pathname) || isKdbxFile(pathname)) {
+    } else if (isDrawioFile(pathname) || isGeoGebraFile(pathname) || isMindMapFile(pathname) || isKdbxFile(pathname) || isPdfFile(pathname)) {
       const openedWithApplication = localTarget
         ? await openLocalLinkWithApplication(win, localTarget)
         : false
@@ -1075,7 +1078,11 @@ export const openFile = async (win: BrowserWindow | null): Promise<void> => {
   if (Array.isArray(filePaths) && filePaths.length > 0) {
     const markdownFiles = filePaths.filter(
       (filePath) =>
-        !isDrawioFile(filePath) && !isGeoGebraFile(filePath) && !isMindMapFile(filePath) && !isKdbxFile(filePath)
+        !isDrawioFile(filePath) &&
+        !isGeoGebraFile(filePath) &&
+        !isMindMapFile(filePath) &&
+        !isKdbxFile(filePath) &&
+        !isPdfFile(filePath)
     )
     if (markdownFiles.length) ipcMain.emit('app-open-files-by-id', win.id, markdownFiles)
     for (const filePath of filePaths.filter(isDrawioFile)) {
@@ -1089,6 +1096,9 @@ export const openFile = async (win: BrowserWindow | null): Promise<void> => {
     }
     for (const filePath of filePaths.filter(isKdbxFile)) {
       void openKdbxFile(filePath, win)
+    }
+    for (const filePath of filePaths.filter(isPdfFile)) {
+      void openPdfFile(filePath, win)
     }
   }
 }
@@ -1124,6 +1134,8 @@ export const openFileOrFolder = (win: BrowserWindow, pathname: string): void => 
     void openMindMapFile(resolvedPath, win)
   } else if (isKdbxFile(resolvedPath)) {
     void openKdbxFile(resolvedPath, win)
+  } else if (isPdfFile(resolvedPath)) {
+    void openPdfFile(resolvedPath, win)
   } else if (isFile(resolvedPath)) {
     ipcMain.emit('app-open-file-by-id', win.id, resolvedPath)
   } else if (isDirectory(resolvedPath)) {

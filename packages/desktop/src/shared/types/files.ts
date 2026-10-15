@@ -110,6 +110,9 @@ export interface IFileState {
   isCodeFile?: boolean
   codeLanguage?: string
   codeMirrorState?: ICodeMirrorState
+  // PDF documents rendered by embedded PDF.js reader.
+  isPdf?: boolean
+  pdfState?: IPdfState
 }
 
 export interface ICodeMirrorState {
@@ -170,6 +173,24 @@ export interface IMindMapState {
   modified: boolean
   isSaved: boolean
   isSaving: boolean
+  saveError?: string
+  lastSavedHash?: string
+}
+
+export interface IPdfState {
+  id: string
+  pathname: string
+  filename: string
+  modified: boolean
+  isSaved: boolean
+  isSaving: boolean
+  page?: number
+  scale?: number | string
+  rotation?: number
+  sidebarView?: number
+  scrollMode?: number
+  spreadMode?: number
+  scrollTop?: number
   saveError?: string
   lastSavedHash?: string
 }

@@ -33,6 +33,7 @@ const isGeoGebraFile = (pathname: string): boolean => path.extname(pathname).toL
 
 const isMindMapFile = (pathname: string): boolean => path.extname(pathname).toLowerCase() === '.smm'
 const isKdbxFile = (pathname: string): boolean => path.extname(pathname).toLowerCase() === '.kdbx'
+const isPdfFile = (pathname: string): boolean => path.extname(pathname).toLowerCase() === '.pdf'
 
 type WatchType = 'dir' | 'file'
 
@@ -69,6 +70,7 @@ const add = async(
   const isGeoGebra = isGeoGebraFile(pathname)
   const isMindMap = isMindMapFile(pathname)
   const isKdbx = isKdbxFile(pathname)
+  const isPdf = isPdfFile(pathname)
   const file: {
     pathname: string
     name: string
@@ -81,6 +83,7 @@ const add = async(
     isGeoGebra: boolean
     isMindMap: boolean
     isKdbx: boolean
+    isPdf?: boolean
     isCodeFile?: boolean
     data?: Awaited<ReturnType<typeof loadMarkdownFile>>
   } = {
@@ -95,6 +98,7 @@ const add = async(
     isGeoGebra,
     isMindMap,
     isKdbx,
+    isPdf,
     isCodeFile: isCode
   }
   if (isMarkdown || isCode) {
@@ -120,7 +124,7 @@ const add = async(
       }
     }
   }
-  if (isMarkdown || isDrawing || isGeoGebra || isMindMap || isKdbx || isCode) {
+  if (isMarkdown || isDrawing || isGeoGebra || isMindMap || isKdbx || isPdf || isCode) {
     win.webContents.send(EVENT_NAME[type], {
       type: 'add',
       change: file
@@ -164,6 +168,7 @@ const change = async(
   const isGeoGebra = isGeoGebraFile(pathname)
   const isMindMap = isMindMapFile(pathname)
   const isKdbx = isKdbxFile(pathname)
+  const isPdf = isPdfFile(pathname)
   const isCode = isCodeOrTextFilePath(pathname)
   if (isMarkdown || isCode) {
     try {
@@ -185,7 +190,7 @@ const change = async(
         })
       }
     }
-  } else if (isDrawing || isGeoGebra || isMindMap || isKdbx) {
+  } else if (isDrawing || isGeoGebra || isMindMap || isKdbx || isPdf) {
     try {
       const stats = await fsPromises.stat(pathname)
       win.webContents.send('mt::update-object-tree', {
@@ -275,6 +280,7 @@ class Watcher {
           !isGeoGebraFile(pathname) &&
           !isMindMapFile(pathname) &&
           !isKdbxFile(pathname) &&
+          !isPdfFile(pathname) &&
           !isCodeOrTextFilePath(pathname)
         )
       },

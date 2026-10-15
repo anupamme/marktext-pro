@@ -24,6 +24,7 @@ export interface TreeFileNode {
   isMindMap?: boolean
   isKdbx?: boolean
   isCodeFile?: boolean
+  isPdf?: boolean
 }
 
 export interface TreeFolderNode {

@@ -31,6 +31,7 @@ import type {
   IGeoGebraState,
   IMindMapState,
   IKdbxState,
+  IPdfState,
   GeoGebraMode,
   UnsavedDrawioFile,
   UnsavedGeoGebraFile,
@@ -185,6 +186,7 @@ export interface EditorState {
   geogebraStates: Record<string, IGeoGebraState>
   mindMapStates: Record<string, IMindMapState>
   kdbxStates: Record<string, IKdbxState>
+  pdfStates: Record<string, IPdfState>
   listToc: TocItem[]
   toc: TocTreeNode[]
 }
@@ -200,6 +202,7 @@ export const useEditorStore = defineStore('editor', {
     geogebraStates: {},
     mindMapStates: {},
     kdbxStates: {},
+    pdfStates: {},
     listToc: [], // Used for equal check and for searching for the correct github-slug to jump to
     toc: []
   }),
@@ -297,6 +300,21 @@ export const useEditorStore = defineStore('editor', {
             tab.id,
             { id: tab.id, pathname: tab.pathname, filename: tab.filename, locked: true, modified: false, isSaved: tab.isSaved, isSaving: false } satisfies IKdbxState
           ])
+        )
+        s.pdfStates = Object.fromEntries(
+          tabs
+            .filter((tab) => tab.isPdf)
+            .map((tab) => [
+              tab.id,
+              {
+                id: tab.id,
+                pathname: tab.pathname,
+                filename: tab.filename,
+                modified: false,
+                isSaved: tab.isSaved,
+                isSaving: false
+              } satisfies IPdfState
+            ])
         )
         s.listToc = []
         s.toc = []
@@ -643,6 +661,15 @@ export const useEditorStore = defineStore('editor', {
       }
       if (this.currentFile.isKdbx) {
         if (this.currentFile.pathname) void window.electron.ipcRenderer.invoke('mt::kdbx::save', this.currentFile.pathname)
+        return
+      }
+      if (this.currentFile.isPdf) {
+        if (this.currentFile.pathname) {
+          void window.electron.ipcRenderer.invoke(
+            'mt::pdf::save-request',
+            this.currentFile.pathname
+          )
+        }
         return
       }
       if (this.currentFile.isTerminal) {
@@ -1015,6 +1042,55 @@ export const useEditorStore = defineStore('editor', {
       })
     },
 
+    LISTEN_FOR_PDF_STATE(): void {
+      window.electron.ipcRenderer.on('mt::pdf::state', (_, payload) => {
+        if (!payload || typeof payload.filePath !== 'string') return
+        const tab = this.tabs.find(
+          (file) =>
+            file.isPdf && window.fileUtils.isSamePathSync(file.pathname, payload.filePath)
+        )
+        if (!tab) return
+
+        const state: IPdfState = {
+          id: tab.id,
+          pathname: tab.pathname,
+          filename: tab.filename,
+          modified: payload.modified === true,
+          isSaved: payload.isSaved === true,
+          isSaving: payload.isSaving === true,
+          page: payload.page,
+          scale: payload.scale,
+          rotation: payload.rotation,
+          sidebarView: payload.sidebarView,
+          ...(payload.saveError ? { saveError: payload.saveError } : {})
+        }
+        this.pdfStates[tab.id] = state
+        tab.isSaved = state.isSaved && !state.modified
+        if (this.currentFile?.id === tab.id) {
+          this.currentFile.isSaved = tab.isSaved
+        }
+
+        if (payload.saveError) {
+          notice.notify({
+            title: t('dialog.saveFailure'),
+            message: payload.saveError,
+            type: 'error',
+            time: 20000,
+            showConfirm: false
+          })
+        }
+
+        if (state.isSaved) {
+          const timer = autoSaveTimers.get(tab.id)
+          if (timer) clearTimeout(timer)
+          autoSaveTimers.delete(tab.id)
+        } else if (state.modified && !state.isSaving) {
+          this.HANDLE_PDF_AUTO_SAVE({ id: tab.id, pathname: tab.pathname })
+        }
+        debouncedSendBufferedState()
+      })
+    },
+
     LISTEN_FOR_SAVE_CLOSE(): void {
       window.electron.ipcRenderer.on('mt::force-close-tabs-by-id', (_, tabIdList) => {
         if (Array.isArray(tabIdList) && tabIdList.length) {
@@ -1059,13 +1135,27 @@ export const useEditorStore = defineStore('editor', {
         return state ? state.modified || !state.isSaved : !file.isSaved
       })
 
+      const unsavedPdfFiles = tabs.filter((file) => {
+        if (!file.isPdf) return false
+        const state = this.pdfStates[file.id]
+        return state ? state.modified || !state.isSaved : !file.isSaved
+      })
+
+      const unsavedKdbxFiles = tabs.filter((file) => {
+        if (!file.isKdbx) return false
+        const state = this.kdbxStates[file.id]
+        return state ? state.modified || !state.isSaved : !file.isSaved
+      })
+
       if (closeTabs) {
         const savedTabIds = tabs
           .filter(
             (file) =>
               file.isSaved &&
               !unsavedDrawioFiles.some((item) => item.id === file.id) &&
-              !unsavedMindMapFiles.some((item) => item.id === file.id)
+              !unsavedMindMapFiles.some((item) => item.id === file.id) &&
+              !unsavedPdfFiles.some((item) => item.id === file.id) &&
+              !unsavedKdbxFiles.some((item) => item.id === file.id)
           )
           .map((file) => file.id)
         this.CLOSE_TABS(savedTabIds)
@@ -1249,6 +1339,10 @@ export const useEditorStore = defineStore('editor', {
           this.mindMapStates[tab.id]!.pathname = nextPathname
           this.mindMapStates[tab.id]!.filename = tab.filename
         }
+        if (this.pdfStates[tab.id]) {
+          this.pdfStates[tab.id]!.pathname = nextPathname
+          this.pdfStates[tab.id]!.filename = tab.filename
+        }
         if (savedStateById.has(tab.id)) {
           tab.isSaved = savedStateById.get(tab.id)!
         }
@@ -1298,7 +1392,8 @@ export const useEditorStore = defineStore('editor', {
           !oldCurrentFile.isMindMap &&
           !oldCurrentFile.isKdbx &&
           !oldCurrentFile.isTerminal &&
-          !oldCurrentFile.isCodeFile
+          !oldCurrentFile.isCodeFile &&
+          !oldCurrentFile.isPdf
         ) {
           this.flushActiveEditor()
         }
@@ -1317,7 +1412,8 @@ export const useEditorStore = defineStore('editor', {
           !currentFile.isMindMap &&
           !currentFile.isKdbx &&
           !currentFile.isTerminal &&
-          !currentFile.isCodeFile
+          !currentFile.isCodeFile &&
+          !currentFile.isPdf
         ) {
           bus.emit('file-changed', {
             id,
@@ -1442,6 +1538,44 @@ export const useEditorStore = defineStore('editor', {
         terminalKdbxEntryId: kdbxEntryId
       })
       this.UPDATE_CURRENT_FILE(terminalTab)
+    },
+
+    OPEN_PDF_TAB({ filePath, title }: { filePath: string; title?: string }): void {
+      const existingTab = this.tabs.find((tab) =>
+        window.fileUtils.isSamePathSync(tab.pathname, filePath)
+      )
+      if (existingTab) {
+        existingTab.isPdf = true
+        if (!this.pdfStates[existingTab.id]) {
+          this.pdfStates[existingTab.id] = {
+            id: existingTab.id,
+            pathname: existingTab.pathname,
+            filename: existingTab.filename,
+            modified: false,
+            isSaved: existingTab.isSaved,
+            isSaving: false
+          }
+        }
+        this.UPDATE_CURRENT_FILE(existingTab)
+        return
+      }
+
+      const pdfTab = createDocumentState({
+        pathname: filePath,
+        filename: title || window.path.basename(filePath),
+        markdown: '',
+        isSaved: true,
+        isPdf: true
+      })
+      this.pdfStates[pdfTab.id] = {
+        id: pdfTab.id,
+        pathname: filePath,
+        filename: title || window.path.basename(filePath),
+        modified: false,
+        isSaved: true,
+        isSaving: false
+      }
+      this.UPDATE_CURRENT_FILE(pdfTab)
     },
 
     /**
@@ -1657,22 +1791,29 @@ export const useEditorStore = defineStore('editor', {
       if (target.isGeoGebra && !target.isSaved) {
         void window.electron.ipcRenderer
           .invoke('mt::geogebra::save-request', target.pathname)
-          .then(() => this.FORCE_CLOSE_TAB(target))
           .catch((error) => console.error('Failed to save GeoGebra tab before closing', error))
+          .finally(() => this.FORCE_CLOSE_TAB(target))
         return
       }
 
       if (target.isMindMap && !target.isSaved) {
         void window.electron.ipcRenderer
           .invoke('mt::mindmap::save-request', target.pathname)
-          .then(() => this.FORCE_CLOSE_TAB(target))
           .catch((error) => console.error('Failed to save MindMap tab before closing', error))
+          .finally(() => this.FORCE_CLOSE_TAB(target))
         return
       }
       if (target.isKdbx && !target.isSaved) {
         void window.electron.ipcRenderer.invoke('mt::kdbx::save', target.pathname)
-          .then(() => this.FORCE_CLOSE_TAB(target))
           .catch((error) => console.error('Failed to save KDBX tab before closing', error))
+          .finally(() => this.FORCE_CLOSE_TAB(target))
+        return
+      }
+      if (target.isPdf && !target.isSaved) {
+        void window.electron.ipcRenderer
+          .invoke('mt::pdf::save-request', target.pathname)
+          .catch((error) => console.error('Failed to save PDF tab before closing', error))
+          .finally(() => this.FORCE_CLOSE_TAB(target))
         return
       }
 
@@ -1755,6 +1896,13 @@ export const useEditorStore = defineStore('editor', {
         if (file.pathname) void window.electron.ipcRenderer.invoke('mt::kdbx::lock', file.pathname)
       }
 
+      if (file.isPdf) {
+        delete this.pdfStates[file.id]
+        if (file.pathname) {
+          void window.electron.ipcRenderer.invoke('mt::pdf::close-file', file.pathname)
+        }
+      }
+
       if (file.isTerminal) {
         if (file.terminalSessionId) {
           const terminalStore = useTerminalStore()
@@ -1776,6 +1924,7 @@ export const useEditorStore = defineStore('editor', {
           !fileState.isKdbx &&
           !fileState.isTerminal &&
           !fileState.isCodeFile &&
+          !fileState.isPdf &&
           typeof fileState.markdown === 'string'
         ) {
           const { id, markdown, cursor, history, pathname, scrollTop, blocks, muyaIndexCursor } =
@@ -1838,6 +1987,13 @@ export const useEditorStore = defineStore('editor', {
         void window.electron.ipcRenderer.invoke('mt::kdbx::save', file.pathname)
           .then(() => this.FORCE_CLOSE_TAB(file))
           .catch((error) => console.error('Failed to save KDBX tab before closing', error))
+        return
+      }
+      if (file.isPdf) {
+        void window.electron.ipcRenderer
+          .invoke('mt::pdf::save-request', file.pathname)
+          .then(() => this.FORCE_CLOSE_TAB(file))
+          .catch((error) => console.error('Failed to save PDF tab before closing', error))
         return
       }
       const { id, pathname, filename, markdown } = file
@@ -1938,6 +2094,7 @@ export const useEditorStore = defineStore('editor', {
           !this.currentFile.isMindMap &&
           !this.currentFile.isKdbx &&
           !this.currentFile.isTerminal &&
+          !this.currentFile.isPdf &&
           typeof this.currentFile.markdown === 'string'
         ) {
           const { id, markdown, cursor, history, pathname, scrollTop, blocks, muyaIndexCursor } =
@@ -2400,6 +2557,24 @@ export const useEditorStore = defineStore('editor', {
         if (tab?.isKdbx && state?.modified && !state.isSaving) {
           void window.electron.ipcRenderer.invoke('mt::kdbx::save', pathname)
             .catch((error) => console.error('KDBX auto-save failed', error))
+        }
+      }, preferencesStore.autoSaveDelay)
+      autoSaveTimers.set(id, timer)
+    },
+
+    HANDLE_PDF_AUTO_SAVE({ id, pathname }: { id: string; pathname: string }): void {
+      const preferencesStore = usePreferencesStore()
+      if (!preferencesStore.autoSave || !id || !pathname) return
+      const oldTimer = autoSaveTimers.get(id)
+      if (oldTimer) clearTimeout(oldTimer)
+      const timer = setTimeout(() => {
+        autoSaveTimers.delete(id)
+        const tab = this.tabs.find((item) => item.id === id)
+        const state = this.pdfStates[id]
+        if (tab?.isPdf && state?.modified && !state.isSaving) {
+          void window.electron.ipcRenderer
+            .invoke('mt::pdf::save-request', pathname)
+            .catch((error) => console.error('PDF 自动保存失败', error))
         }
       }, preferencesStore.autoSaveDelay)
       autoSaveTimers.set(id, timer)

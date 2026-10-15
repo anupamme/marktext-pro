@@ -51,6 +51,7 @@ import { useI18n } from 'vue-i18n'
 import { getDrawioConfiguration } from '@/util/drawioConfiguration'
 import { getGeoGebraConfiguration } from '@/util/geogebraConfiguration'
 import { getMindMapConfiguration } from '@/util/mindmapConfiguration'
+import { getPdfConfiguration } from '@/util/pdfConfiguration'
 
 const props = defineProps<{
   file: TreeFileNode
@@ -82,7 +83,7 @@ const isFileActive = computed<boolean>(() => {
 
 const isSupportedFile = computed<boolean>(() => {
   const f = props.file
-  if (f.isMarkdown || f.isDrawing || f.isGeoGebra || f.isMindMap || f.isKdbx || f.isCodeFile) {
+  if (f.isMarkdown || f.isDrawing || f.isGeoGebra || f.isMindMap || f.isKdbx || f.isCodeFile || f.isPdf || /\.pdf$/i.test(f.pathname)) {
     return true
   }
   return window.fileUtils?.isCodeOrTextFilePath ? window.fileUtils.isCodeOrTextFilePath(f.pathname) : false
@@ -90,8 +91,16 @@ const isSupportedFile = computed<boolean>(() => {
 
 // from fileMixins
 const handleFileClick = (): void => {
-  const { isMarkdown, isDrawing, isGeoGebra, isMindMap, isKdbx, isCodeFile, pathname } = props.file
+  const { isMarkdown, isDrawing, isGeoGebra, isMindMap, isKdbx, isCodeFile, isPdf, pathname } = props.file
   projectStore.SELECT_PARENT_FOLDER_FOR_FILE(pathname)
+  if (isPdf || /\.pdf$/i.test(pathname)) {
+    void window.electron.ipcRenderer.invoke(
+      'mt::pdf::open',
+      pathname,
+      getPdfConfiguration()
+    )
+    return
+  }
   if (isDrawing || /\.drawio$/i.test(pathname)) {
     void window.electron.ipcRenderer.invoke(
       'mt::drawio::open',

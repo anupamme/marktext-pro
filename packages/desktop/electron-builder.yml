@@ -100,6 +100,11 @@ extraResources:
       - 'index.html'
       - 'dist/**'
       - '!dist/**/*.map'
+  - from: src/pdfWebApp/pdfjs
+    to: pdfjs
+    filter:
+      - '**/*'
+      - '!**/*.map'
 npmRebuild: false
 electronLanguages: # Keep Chromium/AppKit locales for the UI languages MarkText supports
   # Values must cover both spellings: "xx-YY" .pak files on Windows/Linux and
@@ -199,6 +204,12 @@ fileAssociations:
     description: KeePass compatible encrypted password vault
     mimeType: application/x-keepass2
     role: Editor
+    icon: icons/md.ico
+  - ext: pdf
+    name: PDF Document
+    description: Portable Document Format
+    mimeType: application/pdf
+    role: Viewer
     icon: icons/md.ico
 win:
   executableName: marktextpro

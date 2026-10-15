@@ -50,7 +50,9 @@ const defaultFileStateWithoutId = {
   headingNumberingIncludesTopLevel: false,
   isCodeFile: false,
   codeLanguage: '',
-  codeMirrorState: undefined
+  codeMirrorState: undefined,
+  isPdf: false,
+  pdfState: undefined
 } satisfies Omit<IFileState, 'id'>
 
 /**
@@ -100,7 +102,9 @@ const documentStateKeys = [
   'headingNumberingIncludesTopLevel',
   'isCodeFile',
   'codeLanguage',
-  'codeMirrorState'
+  'codeMirrorState',
+  'isPdf',
+  'pdfState'
 ] as const satisfies ReadonlyArray<keyof IFileState>
 
 export const getBlankFileState = (
@@ -190,6 +194,28 @@ export const createDocumentState = (
         history: null,
         cursor: null,
         scrollTop: 0
+      }
+    }
+  }
+
+  const isPdf =
+    src.isPdf === true ||
+    docState.isPdf === true ||
+    (Boolean(pathname) && /\.pdf$/i.test(pathname))
+
+  if (isPdf) {
+    ;(docState as Record<string, unknown>).isPdf = true
+    if (!(docState as Record<string, unknown>).pdfState) {
+      ;(docState as Record<string, unknown>).pdfState = {
+        id,
+        filename: (docState.filename as string) || '',
+        pathname,
+        modified: false,
+        isSaved: docState.isSaved !== false,
+        isSaving: false,
+        page: 1,
+        scale: 'auto',
+        rotation: 0
       }
     }
   }
